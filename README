@@ -1,2 +1,3 @@
-Git is a version control system.
-Git is free software.
+ I prepare coding a high concurrency server on linux:
+ It based on reactor and multithreading.
+ It will coding by C++;
