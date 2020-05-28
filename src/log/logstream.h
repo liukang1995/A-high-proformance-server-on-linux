@@ -9,10 +9,6 @@
 
 #include <string>
 
-using namespace std;
-using namespace summer;
-using namespace summer::log;
-
 namespace summer
 {
     namespace log
@@ -38,13 +34,23 @@ namespace summer
             logstream& operator<<(double);
             logstream& operator<<(char);
             logstream& operator<<(char*);
-            logstream& operator<<(string);
+            logstream& operator<<(std::string);
             
-            const Buffer& buffer(){
+             Buffer& buffer(){
                 return buf_;
             }
 
+            void append(char* str,int len){
+                buf_.append(str,len);
+            }
+            void reset(){ buf_.reset(); }
+
+            static const int num_reverse = 32;
         private:
+
+            template <class T>
+            void converttobuf( T );
+
             Buffer buf_;
         };
         

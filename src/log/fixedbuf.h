@@ -17,6 +17,8 @@ namespace summer{
 template <int SIZE>
 class FixedBuffer
 {
+
+public:
  FixedBuffer( )
    :cur_(buf_)
   {
@@ -31,6 +33,8 @@ class FixedBuffer
   int avail();
   void bzero();
   std::string tostring();
+  void reset(){ cur = buf_; }
+  void add( int len ){ cur += len; }
 
 private:
 
