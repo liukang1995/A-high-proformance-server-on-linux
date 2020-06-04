@@ -49,7 +49,7 @@ namespace summer{
             logger( basename name, int line, Loglevel level );
 
             ~logger();
-            logstream& stream(){ return stream_; }
+            summer::log::logstream& stream(){ return stream_; }
 
             static Loglevel loglevel(){ return global_loglevel; }
             static Loglevel setloglevel( Loglevel level ){ global_loglevel = level; }
@@ -65,16 +65,17 @@ namespace summer{
             static Loglevel global_loglevel;
             OutputFunc outputfunc_;
             FlushFunc flushfunc_;
-            Loglevel level_;
-            logstream stream_;
+            summer::log::Loglevel level_;
+            summer::log::logstream stream_;
             int line_;
             basename name_;
         };
 
-        #define LOGDEBUG summer::log::logger(__FINE__,__LINE__,DEBUG).stream();
-        #define LOGINFO summer::log::logger(__FINE__,__LINE__,INFO).stream();
-        #define LOGERROR summer::log::logger(__FINE__,__LINE__,ERROR).stream();
-        #define LOGWARN summer::log::logger(__FINE__,__LINE__,WARN).stream();
+        //直接使用的宏
+        #define LOGDEBUG summer::log::logger(__FILE__,__LINE__,summer::log::DEBUG).stream()
+        #define LOGINFO summer::log::logger(__FILE__,__LINE__,summer::log::INFO).stream()
+        #define LOGERROR summer::log::logger(__FILE__,__LINE__,summer::log::ERROR).stream()
+        #define LOGWARN summer::log::logger(__FILE__,__LINE__,summer::log::WARN).stream()
 
     } // namespace log
 } // namespace summer
