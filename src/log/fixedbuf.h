@@ -26,22 +26,30 @@ public:
   }
   ~FixedBuffer( );
 
+//用于向缓冲区添加数据
   int append( const char*, int );
+
   char* data();
   int length();
   char* current();
+  
   int avail();
   void bzero();
+
   std::string tostring();
   void reset(){ cur = buf_; }
+
+//允许直接向缓冲区添加内容、此为调整cur_指针
   void add( int len ){ cur += len; }
 
 private:
 
   char buf_[SIZE];
+  //始终指向下一个可以填充的位置
   char* cur_;
 };
 
+//手动具现化模板
 
  template class FixedBuffer<ksmallbuf>;
  template class FixedBuffer<klargebuf>;
