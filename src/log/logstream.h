@@ -18,23 +18,23 @@ namespace summer
         public:
             typedef summer::log::FixedBuffer<ksmallbuf> Buffer;
             
-            logstream& operator<<(bool v)
+            summer::log::logstream& operator<<(bool v)
             {
                 buf_.append((v ? "0" : "1") , 1 );
                 return *this;
             }
 
-            logstream& operator<<(short);
-            logstream& operator<<(unsigned short);
-            logstream& operator<<(int);
-            logstream& operator<<(unsigned int);
-            logstream& operator<<(long);
-            logstream& operator<<(unsigned long);
-            logstream& operator<<(float);
-            logstream& operator<<(double);
-            logstream& operator<<(char);
-            logstream& operator<<(char*);
-            logstream& operator<<(std::string);
+            summer::log::logstream& operator<<(short);
+            summer::log::logstream& operator<<(unsigned short);
+            summer::log::logstream& operator<<(int);
+            summer::log::logstream& operator<<(unsigned int);
+            summer::log::logstream& operator<<(long);
+            summer::log::logstream& operator<<(unsigned long);
+            summer::log::logstream& operator<<(float);
+            summer::log::logstream& operator<<(double);
+            summer::log::logstream& operator<<(char);
+            summer::log::logstream& operator<<(const char*);
+            summer::log::logstream& operator<<(std::string);
             
              Buffer& buffer(){
                 return buf_;

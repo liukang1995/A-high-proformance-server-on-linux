@@ -107,7 +107,7 @@ logstream& logstream::operator<<( char c )
     return *this;
 }
 
-logstream& logstream::operator<<( char* str )
+logstream& logstream::operator<<(const char* str )
 {
     if ( str ){
         buf_.append(str, strlen(str));
