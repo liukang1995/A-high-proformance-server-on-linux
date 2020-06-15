@@ -12,7 +12,7 @@ namespace summer{
 class file
 {
 public:
-    file(char*);
+    file(const char*);
     ~file();
     void append(char*,size_t);
     off_t writtenbytes(){ return writtenbytes_; }
