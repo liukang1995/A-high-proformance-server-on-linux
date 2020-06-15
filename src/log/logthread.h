@@ -10,6 +10,7 @@
 #include <condition_variable>
 #include <mutex>
 #include <vector>
+#include <future>
 
 #include "fixedbuf.h"
 
@@ -32,7 +33,11 @@ namespace summer
         // 停止线程
             void stop();
         private:
-            void LogFunc();
+            void LogFunc(  );
+
+        // 控制日志线程启动
+            std::promise<bool> start_;
+            std::future<bool> start_f;
 
         //线程循环标志
             std::atomic<bool> running_;
@@ -57,11 +62,11 @@ namespace summer
             
         // 存放已经写满的缓冲区
             Front_Bufs bufs_;
-        }
+        };
 
 
 
-    }; // namespace log
+    } // namespace log
 } // namespace summer
 
 
