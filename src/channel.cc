@@ -48,3 +48,13 @@ void channel::handleEvents()
     }
     
 }
+
+// 记录events是否发生变动
+bool channel::compare_update_lastevents( )
+{
+  bool equal = ( events == lastevents );
+  if ( !equal )
+    lastevents = events;
+
+  return equal;
+}
