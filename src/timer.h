@@ -15,7 +15,7 @@ namespace summer
         typedef std::shared_ptr<HttpData> HttpDataPtr;
 
         timernode( HttpDataPtr data, time_t timeout );
-        timernode( const timernode& rhs );
+        // timernode( const timernode& rhs );
 
         ~timernode();
 
@@ -43,6 +43,9 @@ namespace summer
     class timerManager
     {
     public:
+        timerManager() = default;
+        ~timerManager() = default;
+
         typedef std::shared_ptr<timernode> TimeNodePtr;
 
         struct comp{
@@ -51,6 +54,9 @@ namespace summer
                 return lhs->getExpired() > rhs->getExpired();
             }
         };
+
+        void addtimer(summer::timernode::HttpDataPtr data, time_t timeout);
+        void handleExpired();
 
         static bool CompTimeNodePtr( TimeNodePtr& lhs, TimeNodePtr& rhs ) { return lhs->getExpired() > rhs->getExpired(); }
 
