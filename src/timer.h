@@ -1,5 +1,10 @@
 // timernode: 一个计时器节点，它代表一个文件描述符和它关联的超时值
 // timermanager: 管理timernode，取出超时节点，并执行超时任务
+#ifndef ROOT_SRC_TIME_H
+#define ROOT_SRC_TIME_H
+
+#include "httpconnection.h"
+
 #include <time.h>
 
 #include <functional>
@@ -8,42 +13,51 @@
 
 namespace summer
 {
-    class HttpData;
     class timernode
     {
     public:
-        typedef std::shared_ptr<HttpData> HttpDataPtr;
+        typedef std::shared_ptr<httpconnection> httpconnectionPtr;
 
-        timernode( HttpDataPtr data, time_t timeout );
+        timernode( httpconnectionPtr data, std::function<void()> timeProc,time_t timeout,unsigned int id );
         // timernode( const timernode& rhs );
 
-        ~timernode();
+        // enable copy
+        timernode(const timernode&) = default;
+        timernode& operator=(const timernode&) = default;
+
+        // enable move
+        timernode( timernode&& ) = default;
+        timernode& operator=( timernode&& ) = default;
+        
+        // default dest
+        ~timernode() = default;
+
+        void process() { timeProc_(); }
 
         void update( time_t timeout );
         bool isValid();
 
-        /*
+        void clear() { httpconnection_.reset(); deleted_ = true; }
 
-        bool clearReq();
+        // 主动删除
+        void setdeleted() { deleted_ = true; }
+        bool isdeleted() { return deleted_; }
 
-        */
-
-       void setdeleted() { deleted = true; }
-       bool isdeleted() { return deleted; }
-
-       time_t getExpired() { return expiredTime; }
+        time_t getExpired() { return when_; }
 
     private:
-        bool deleted;
-        time_t expiredTime;
-        std::shared_ptr<HttpData> httpdata_;
+        bool deleted_;
+        unsigned int id_;
+        time_t when_;
+        std::function<void()> timeProc_;
+        std::weak_ptr<httpconnection> httpconnection_;
     };
 
 
     class timerManager
     {
     public:
-        timerManager() = default;
+        timerManager():id(0){ }
         ~timerManager() = default;
 
         typedef std::shared_ptr<timernode> TimeNodePtr;
@@ -55,15 +69,14 @@ namespace summer
             }
         };
 
-        void addtimer(summer::timernode::HttpDataPtr data, time_t timeout);
+        void addtimer(summer::timernode::httpconnectionPtr data,time_t timeout,std::function<void()> timeProc);
         void handleExpired();
-
-        static bool CompTimeNodePtr( TimeNodePtr& lhs, TimeNodePtr& rhs ) { return lhs->getExpired() > rhs->getExpired(); }
-
     private:
-        
-
-        std::priority_queue<TimeNodePtr, std::deque<TimeNodePtr>, comp > nodes;
+        int id;
+        std::priority_queue<TimeNodePtr, std::deque<TimeNodePtr>, comp> nodes;
     };
 
 } // end summer
+
+
+#endif

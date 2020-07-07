@@ -4,33 +4,27 @@
 using namespace std;
 using namespace summer;
 
-timernode::timernode(HttpDataPtr data, time_t timeout)
-:deleted(false),
-httpdata_(data),
-expiredTime( time(NULL) + timeout )
+timernode::timernode( httpconnectionPtr data, std::function<void()> timeProc,time_t timeout, unsigned int id )
+    :
+    deleted_(false),
+    id_(id),
+    when_( time(NULL) + timeout ),
+    timeProc_(timeProc),
+    httpconnection_(data)
 {
 
-}
-
-timernode::~timernode()
-{
-    /*
-
-    handleclose?
-
-    */
 }
 
 void timernode::update( time_t timeout )
 {
     time_t now = time(NULL);
-    expiredTime = now + timeout;
+    when_ = now + timeout;
 }
 
 bool timernode::isValid()
 {
     time_t now = time(NULL);
-    if ( now < expiredTime )
+    if ( now < when_ )
         return true;
     else{
         setdeleted();
@@ -38,17 +32,11 @@ bool timernode::isValid()
     }
 }
 
-void timerManager::addtimer( timernode::HttpDataPtr data, time_t timeout )
+void timerManager::addtimer( timernode::httpconnectionPtr data, time_t timeout,std::function<void()> timeProc )
 {
-    TimeNodePtr node( new timernode( data, timeout ) );
+    TimeNodePtr node( new timernode( data, timeProc,timeout,++id ) );
     nodes.push(node);
-    /*
-
-
-    http_data link timer
-
-
-    */
+    data->settimer( node );
 }
 
 void timerManager::handleExpired()
@@ -57,11 +45,11 @@ void timerManager::handleExpired()
     {
         // 惰性删除
         TimeNodePtr cur = nodes.top();
-        if ( cur->isdeleted() )
+        if ( cur->isdeleted() || !cur->isValid() ){
             nodes.pop();
-        // 计时器已经过期
-        else if( !cur->isValid() )
-            nodes.pop();
-        else break;
+            cur->process();
+        }else 
+            break;
+        //退出此空间后，启动超时timenode的析构行为
     }
 }
