@@ -6,6 +6,7 @@
 #include "sys/epoll.h"
 
 #include "channel.h"
+#include "timer.h"
 
 #include <map>
 #include <memory>
@@ -16,32 +17,30 @@ namespace summer
 
     class Epoll 
     {
+    public:
+        using Channel_Ptr = std::shared_ptr<channel> ;
+        using Channel_List = std::vector<Channel_Ptr> ;
+
     private:
         // 持有的epoll文件描述符，在初始化时创建
         int epfd_;
-
-        typedef std::shared_ptr<channel> Channel_Ptr;
-        typedef std::vector<Channel_Ptr> Channel_List;
-
-        // 用于保存epoll_wait()活动的事件
+        // as return value of epoll_wait:  active fd
         std::vector<epoll_event> active_list;
-
         // 保存epfd监听的文件描述符
         std::map<int, Channel_Ptr> channels;
+        summer::timerManager manage_;
 
     public:
         Epoll();
         ~Epoll();
 
-        // 添加监听fd
         void epoll_add(Channel_Ptr fdptr, int timeout );
-
-        // 修改fd
         void epoll_mod(Channel_Ptr fdptr, int timeout );
+        void epoll_rm(Channel_Ptr fdptr );
 
-        // 删除fd
-        void epoll_rm( Channel_Ptr fdptr );
+        void handle_expired(){ manage_.handleExpired(); }
 
+        //核心
         std::vector<Channel_Ptr> wait();
 
         int getEpfd() { return epfd_; }
