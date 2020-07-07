@@ -5,10 +5,13 @@ using namespace std;
 using namespace summer;
 
 channel::channel( eventloop* loop, int fd )
-:   loop_(loop),
-    fd_(fd),
-    events(0),
-    revents(0)
+  :  
+  fd_(fd),
+  loop_(loop),
+  events(0),
+  revents(0),
+  hcptr_(),
+  srptr_()
 {
 
 }
