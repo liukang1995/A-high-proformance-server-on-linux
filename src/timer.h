@@ -16,7 +16,7 @@ namespace summer
     class timernode
     {
     public:
-        typedef std::shared_ptr<httpconnection> httpconnectionPtr;
+        typedef std::weak_ptr<httpconnection> httpconnectionPtr;
 
         timernode( httpconnectionPtr data, std::function<void()> timeProc,time_t timeout,unsigned int id );
         // timernode( const timernode& rhs );
@@ -61,6 +61,7 @@ namespace summer
         ~timerManager() = default;
 
         typedef std::shared_ptr<timernode> TimeNodePtr;
+        using WeHttpConnPtr = std::weak_ptr<httpconnection>;
 
         struct comp{
             bool operator()( TimeNodePtr& lhs, TimeNodePtr& rhs)
@@ -69,7 +70,7 @@ namespace summer
             }
         };
 
-        void addtimer(summer::timernode::httpconnectionPtr data,time_t timeout,std::function<void()> timeProc);
+        void addtimer(WeHttpConnPtr data,time_t timeout,std::function<void()> timeProc);
         void handleExpired();
     private:
         int id;

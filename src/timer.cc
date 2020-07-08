@@ -32,11 +32,13 @@ bool timernode::isValid()
     }
 }
 
-void timerManager::addtimer( timernode::httpconnectionPtr data, time_t timeout,std::function<void()> timeProc )
+void timerManager::addtimer( WeHttpConnPtr data, time_t timeout,std::function<void()> timeProc )
 {
     TimeNodePtr node( new timernode( data, timeProc,timeout,++id ) );
     nodes.push(node);
-    data->settimer( node );
+    shared_ptr<httpconnection> SPHttp = data.lock();
+    if( SPHttp )
+        SPHttp->settimer( node );
 }
 
 void timerManager::handleExpired()
@@ -45,7 +47,9 @@ void timerManager::handleExpired()
     {
         // 惰性删除
         TimeNodePtr cur = nodes.top();
-        if ( cur->isdeleted() || !cur->isValid() ){
+        if ( cur->isdeleted() ){
+            nodes.pop();
+        }else if( !cur->isValid() ){
             nodes.pop();
             cur->process();
         }else 
