@@ -1,3 +1,37 @@
- I prepare coding a high concurrency server on linux:
- It based on reactor and multithreading.
- It will coding by C++;
+A tiny Web server
+
+简介：
+    一个基于C++多线程、Reactor反应式Web服务器。它参考了部分MUDUO、Redis数据库服务器的设计。目前，能够做到解析GET、HEAD两种HTTP请求。并可以解析一定的请求头部，如Host、Content-type、Keep-Alive等头部。
+    它主要具有以下特征：
+    基于EPOLL的IO多路复用机制。服务器只封装了POSIX epoll机制。因为他在高并发的情况下保持着相对稳定的吞吐量。
+    基于对象而非基于面向对象的程序设计。每一个类都代表一份实体。它通常不可复制。传统的设计模式，如策略模式，采用std::function代替。
+    基于线程的程序设计（而非基于任务）。在C++11之后，基于任务的程序设计成为一种推荐，但本服务器依然采用基于线程的设计。在代码中，实现了一个简易的线程池，它用于启动多个线程，并轮询接受一个为一个fd读写。在
+    专用的服务器部署基于线程的服务器设计，线程池依然成为首选。
+    更多的C++11、C++14机制。如：lambda代替了所有回调传统场合，C++14广义lambda的出现，完全代替了已经从boost,tr1库融入标准库的std::bind函数。lambda拥有比std::bind更优的代码。
+                            using别名声明代替了typedef。enum class代替了enum,这是C++提供的强类型枚举量。
+                            针对一次性通信事件，采用基于std::promise和std::future的实现。主要应用在启动线程的场合。它代替了传统的condition_variable的使用场景，是线程不在阻塞在条件变量上，而是阻塞在
+                            期值的获取上，它没有虚假唤醒等问题，却需要一份堆分配空间的开销。但仍然不失为一个好方法。
+                            智能指针的加入。除个别对象指针外(如eventloop)，其他对象均以智能对象管理。
+                            以auto声明部分变量进行初始化。
+
+
+
+计时器设计：
+    名称：timernode,timemanager
+    在REDIS服务器中，以无序链表管理所有的时间时间。时间事件执行与文件事件之后。每次执行事件都需要遍历整个链表以找到所有到期的事件。
+    在MUDUO网络库中，以std::set管理整个时间事件。set采用红黑树设计，每次查找需O(lgn)时间。
+    在本服务器中，时间事件以优先级队列实现。它在C++11中，已经实现为std::priority_queue。它的底层采用堆设计，它却依赖于支持随机迭代器的容器并支持指定的成员函数。此处采用deque为底层容器。
+    删除策略：惰性删除策略,优先级队列不支持随机访问，因此，一旦插入优先级队列，除非超时否则不会提前清除。取消计时器通过设计deleted标志位实现。这可能会造成一定的内存泄漏。
+    生命周期：有timeManage.add创建。直到超时。而后者由EPOLL CTL系列函数调用。计时器主要用来从epoll分离channel。为保证能够快速访问计时器节点。在每一个httpconnection里持有一个timenode的weak_ptr。以空间换时间。
+
+客户端设计：
+    名称：httpconnction
+    生命周期：由server创建，生命期交由server管理。代表了一份HTTP客户端。同时，channel，timenode持有一份httpconnection的弱引用。当计时器超时，channel分离之后，应该启动httpconnection的析构行为。
+    状态属性：主要包括TCP连接状态 ConnectionState，事务处理状态ProcessState,headerstate,uristate。处理进度：analysisstate
+    请求方法：method_ 解析头：headers_ 描述符fd_
+    提供的回调函数：handleRead有数据到来的读回调。handlewrite写数据回调。handleerror用来处理错误，主要供handleread使用，发送错误回客户端
+    缓冲区：直接采用了string作为缓冲区。可能会带来一定的内存风险，和一定的效能损失。
+    Redis客户端的设计：属性：描述符，名字，标志(包括角色和状态)，命令与命令参数。命令的实现函数。身份认证，时间等。这些在httpconnection部分实现。
+
+
+
