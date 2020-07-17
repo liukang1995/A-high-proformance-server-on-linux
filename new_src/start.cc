@@ -12,6 +12,7 @@
 #include "netdb.h"
 #include <arpa/inet.h>
 #include "sys/socket.h"
+#include "signal.h"
 
 using namespace std;
 using namespace summer;
@@ -62,6 +63,9 @@ int main( int argc, char* argv[] )
     auto thread_num = thread::hardware_concurrency();
     int port = 80;
 
+    // ignore sigpipe
+    signal( SIGPIPE, SIG_IGN );
+    
     // step 2: load config 
     // 1、command paraments
     int ch;
