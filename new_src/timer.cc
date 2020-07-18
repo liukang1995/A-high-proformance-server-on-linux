@@ -1,4 +1,5 @@
 #include "timer.h"
+#include "client.h"
 
 using namespace std;
 using namespace summer;
@@ -44,9 +45,11 @@ void timer::add(time_t timeout,wk_client ClientName,timeProc proc)
     time_t timestamp = time(NULL) + timeout;
     nodePtr p(new timenode(timenodeid_++,timestamp,ClientName,proc));
     nodes.push(p);
-    /*
-    向client注册p
-    */
+    auto cli = ClientName.lock();
+    if( cli )
+    {
+        cli->SetTimenode(p);
+    }
 }
 
 void timer::handleExpried()
