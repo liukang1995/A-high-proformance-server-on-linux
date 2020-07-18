@@ -29,7 +29,7 @@ void epoll::update(EPOLL_ADD,ChannelPtr chan,int timeout)
         timer_.add(timeout,client,[ptr = client.lock()] // attention client lifetime
                     {
                         if( ptr )
-                            ptr->handleclose(); //should add client header
+                            ptr->TimeoutHandle(); //should add client header
                     });
 
     struct epoll_event event;
@@ -54,11 +54,11 @@ void epoll::update(EPOLL_MOD,ChannelPtr chan,int timeout)
     if( timeout > 0 )
     {
         auto p = client.lock();
-        if(p->GetTimernode().lock()) p->GetTimernode().lock()->cancel();  // client should have this func
+        p->canneltimer();
         timer_.add(timeout,client,[ptr = client.lock()] // attention client lifetime
                     {
                         if( ptr )
-                            ptr->handleclose(); //should add client header
+                            ptr->TimeoutHandle(); //should add client header
                     });
     }
 
@@ -82,7 +82,7 @@ void epoll::update(EPOLL_DELETE,ChannelPtr chan)
     auto client = chan->GetClient().lock();
     if( !client )
         perror(" delete error ");
-    auto timenode = client->GetTimernode().lock()->cancel();
+    client->canneltimer();
 
     struct epoll_event event;
     event.data.fd = fd;
