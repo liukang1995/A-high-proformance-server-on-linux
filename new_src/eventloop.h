@@ -1,6 +1,8 @@
 // author : liukang
 // rep a evnet loop 文件事件处理器
 
+#pragma once
+
 #include "channel.h"
 #include "epoll.h"
 
@@ -30,6 +32,8 @@ namespace summer
 
         void wakeup();
     //    void shutdown_write( std::shared_ptr<channel> chan);
+
+        std::shared_ptr<epoll> getepoll() { return epoller_; }
     private:
         bool looping_; // in loop func
         std::atomic<bool> quit_; // control loop
