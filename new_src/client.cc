@@ -177,7 +177,6 @@ client::client(eventloop* loop, int fd ,server* server)
 {
     channel_->setReadFunc([this] { readQueryFromClient(); });
     channel_->setWriteFunc([this] {sendReplyToClient();});
-    
 }
 
 void client::canneltimer()
@@ -449,4 +448,12 @@ void client::TimeoutHandle()
 {
     state_ = ConnectionState::DISCONNECTED;
     loop_->getepoll()->update(EPOLL_DELETE(),channel_);
+}
+
+void client::regist()
+{
+    channel_->SetEvents( EPOLLIN | EPOLLET | EPOLLONESHOT );
+    
+    loop_->getepoll()->update(EPOLL_ADD(),channel_,DEFAULT_ALIVE_TIME);
+    
 }

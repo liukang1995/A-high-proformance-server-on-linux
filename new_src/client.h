@@ -46,7 +46,9 @@ namespace summer
             void sendReplyToClient(); // 命令回复处理器
 
             void TimeoutHandle();
+            auto getchannel(){ return channel_; }
 
+            void regist(); // register
         private:
             int fd_;
             eventloop* loop_;
