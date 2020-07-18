@@ -5,6 +5,7 @@
 #include "client.h"
 #include "channel.h"
 #include "eventloop.h" 
+#include "threadpool.h"
 
 #include <unordered_map>
 #include <memory>
@@ -21,7 +22,11 @@ namespace summer
 
             void handleNewConn(); // 连接应答处理器
             void closeclient(int clientfd) { clients.erase(clientfd); }
+
+            threadpool* pool_;
+            eventloop* getnextloop() { return pool_->getnextloop(); }
             
+            auto getchannel() { return acceptChannel_; }
         private:
             eventloop* loop_;
             int port_;

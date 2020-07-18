@@ -9,10 +9,8 @@
 using namespace std;
 using namespace summer;
 
-eventloop* getnextloop();
-
 namespace summer
-{
+{    
     int CreateListenedFd( int port )
     {
         if( port < 0 || port > 65535 ) return -1;
