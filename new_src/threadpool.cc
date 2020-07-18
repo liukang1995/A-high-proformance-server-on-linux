@@ -3,12 +3,12 @@
 using namespace std;
 using namespace summer;
 
-threadpool::threadpool(eventloop* baseloop, int numthread)
+threadpool::threadpool(int numthread)
     :
     start_(false),
     next_(0),
     numthreads_(numthread),
-    baseloop_(baseloop),
+//    baseloop_(baseloop),
     loops_(),
     threads_()
 {
@@ -31,7 +31,7 @@ void threadpool::start()
 // 如果线程池中没有线程，则返回主loop，否则返回线程池中的下一loop
 summer::eventloop* threadpool::getnextloop()
 {
-    eventloop* loop = baseloop_;
+    eventloop* loop = nullptr;
     if( !loops_.empty() )
     {
         loop = loops_[next_];
