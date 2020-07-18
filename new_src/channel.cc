@@ -60,3 +60,13 @@ void channel::DisableWrite()
         ep->update(EPOLL_MOD(),shared_from_this(),DEFAULT_TIMEOUT);
     }
 }
+
+//may be need mod
+void channel::handleEvents()
+{
+    if( revents_ & DEFAULT_READ_EVENTS )
+       ReadFunc_();
+
+    if( revents_ & DEFAULT_WRITE_EVENTS )
+        WriteFunc_(); 
+}

@@ -4,15 +4,15 @@
 #pragma once
 
 #include "stdint.h"
+#include "client.h"
+#include "epoll.h"
+#include "eventloop.h"
 
 #include <functional>
 #include <memory>
 
 namespace summer
 {
-    class epoll;
-    class client;
-    class eventloop;
     // require channel object managed by shared_ptr before share_from_this()
     class channel: public std::enable_shared_from_this<channel>
     {
@@ -42,6 +42,10 @@ namespace summer
 
         void SetClient(WkClientMaster client) { client_ = client; }
         auto GetClient() { return client_; }
+        void SetEpoller(std::weak_ptr<epoll> epoller) { epoller_ = epoller; }
+        auto GetEpoller() { return epoller_; }
+
+        void handleEvents();
     private:
         int fd_;
         std::weak_ptr<epoll> epoller_;
