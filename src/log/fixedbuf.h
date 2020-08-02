@@ -37,10 +37,10 @@ public:
   void bzero();
 
   std::string tostring();
-  void reset(){ cur = buf_; }
+  void reset(){ cur_ = buf_; }
 
 //允许直接向缓冲区添加内容、此为调整cur_指针
-  void add( int len ){ cur += len; }
+  void add( int len ){ cur_ += len; }
 
 private:
 
