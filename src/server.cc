@@ -118,7 +118,8 @@ void server::handleNewConn()
         setsockopt(fd,IPPROTO_TCP,TCP_NODELAY,(const void*)&delay,sizeof(delay));
 
         shared_ptr<httpconnection> NHConn( new httpconnection(loop,fd) );
-        // set chennel holder?
+        NHConn->getchannel()->setholder(NHConn);
+        clients[fd] = NHConn;
         NHConn->addtoloop();
     }
     acceptChannel_->setEvents( EPOLLIN | EPOLLET );

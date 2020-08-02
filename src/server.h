@@ -5,8 +5,10 @@
 
 #include "eventloop.h"
 #include "eventloopthreadpool.h"
+#include "httpconnection.h"
 
 #include <memory>
+#include <unordered_map>
 
 namespace summer
 {
@@ -18,6 +20,7 @@ namespace summer
         eventloop* getloop();
         void start();
         void handleNewConn();
+        void closeclient(int clientfd) { clients.erase(clientfd); }
 
     private:
         eventloop* loop_;
@@ -29,6 +32,7 @@ namespace summer
         bool started_;
 
         std::shared_ptr<channel> acceptChannel_;
+        std::unordered_map<int,std::shared_ptr<summer::httpconnection>> clients;
     };
    
 } // namespace summer
