@@ -1,5 +1,10 @@
+
+#ifndef ROOT_SRC_HTTPCONNECTION_H
+#define ROOT_SRC_HTTPCONNECTION_H
+
 // 一次http 链接，负责处理一个fd_上的请求
 #include "eventloop.h"
+#include "server.h"
 #include "timer.h"
 
 #include <memory>
@@ -12,29 +17,29 @@ namespace summer
     class httpconnection{
 
     public:
-    // 
-        enum class ProcessState;
+        //读取报文
+        enum class ProcessState; //报文解析进度
+        enum class URIState; // 请求行解析进度
+        enum class HeaderState; //请求头部解析进度
 
-        enum class URIState;
+        //正式解析
+        enum class AnalysisState;  //解析状态
+        //enum class ParseState;
 
-        enum class HeaderState;
-
-        enum class AnalysisState;
-    // 
-        enum class ParseState;
-    // TCP链接的状态
+        //TCP链接的状态
         enum class ConnectionState;
-    // HTTP请求方法
+        // HTTP请求方法
         enum class HttpMethod;
-    // mime类型
+        // mime类型
         enum class MineType;
-
+        // HTTP版本
         enum class HttpVision;
 
         httpconnection( eventloop* loop, int fd );
         ~httpconnection( );
 
-        void settimer( std::shared_ptr<timernode> t );
+        void settimer( std::shared_ptr<timernode> t ){ timer_ = t; }
+        auto gettimer() { return timer_; }
         void canceltimer( );
 
         std::shared_ptr<channel> getchannel() { return channel_; }
@@ -42,8 +47,13 @@ namespace summer
 
         void handleclose();
         void newevent();
+        void addtoloop();
 
         void reset();
+
+        void setserver(summer::server* s){ server_ = s; }
+        summer::server* getserver() { return server_; }
+
     private:
         
         void handleread();
@@ -58,6 +68,7 @@ namespace summer
         void init_mime();
     // 文件描述符
         int fd_;
+        summer::server* server_;
 
     // 处理当前请求的loop_,由构造函数指定
         eventloop* loop_;
@@ -74,7 +85,7 @@ namespace summer
     // 当前连接状态
         ConnectionState connstate_;
         ProcessState proceState_;
-        ParseState parseState_;
+        //ParseState parseState_;
 
         HttpVision vision_;
         HttpMethod method_;
@@ -96,3 +107,5 @@ namespace summer
         std::unordered_map<std::string,std::string> mime_map;
     };// end httpconnection
 } // end summer
+
+#endif

@@ -135,7 +135,7 @@ enum class httpconnection::AnalysisState{
     ANALYSIS_ERROR
 };
 
-enum class httpconnection::ParseState{
+/* enum class httpconnection::ParseState{
     H_START = 1,
     H_KEY,
     H_COLON,
@@ -145,7 +145,7 @@ enum class httpconnection::ParseState{
     H_LF,
     H_END_CR,
     H_END_LF
-};
+}; */
 
 enum class httpconnection::ConnectionState{
     H_CONNECTED = 1,
@@ -207,7 +207,7 @@ httpconnection::httpconnection( eventloop* loop, int fd )
     error_( false ),
     connstate_( ConnectionState::H_CONNECTED ),
     proceState_( ProcessState::START_PARSE_URI ),
-    parseState_( ParseState::H_START ),
+    //parseState_( ParseState::H_START ),
     vision_( HttpVision::HTTP_11 ),
     index( 0 ),
     keepalive_( false )
@@ -449,19 +449,20 @@ void httpconnection::handlewrite()
     if( !outbuffer.empty() )
     {
         auto& event = channel_->getEvents();
-        event |= EPOLLOUT;
+        event ^= EPOLLOUT;
     }
 }
 
 void httpconnection::handleconnection()
 {
-    // 清除计时器
-    shared_ptr<timernode> t = timer_.lock();
+    // 重置计数器
+    auto t = timer_.lock();
     if( t )
     {
         t->clear();
         timer_.reset();
     }
+    inbuffer.clear();
 
     auto& event = channel_->getEvents();
     if( !error_ && connstate_ == ConnectionState::H_CONNECTED )
@@ -605,4 +606,24 @@ void httpconnection::newevent()
 {
     channel_->setEvents(EPOLLIN | EPOLLET | EPOLLONESHOT);
     loop_->add(channel_,DEFAULT_EXPIRED_TIME);
+}
+
+void httpconnection::addtoloop()
+{
+    loop_->queueInloop([this]{ newevent(); });
+}
+
+void httpconnection::reset()
+{
+    filename_.clear();
+    path_.clear();
+    index = 0;
+    proceState_ = ProcessState::START_PARSE_URI;
+    headers_.clear();
+    auto t = timer_.lock();
+    if ( t )
+    {
+        t->clear();
+        timer_.reset();
+    }
 }
