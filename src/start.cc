@@ -1,6 +1,6 @@
 
 
-#include "unistd.h"
+#include "unistd.h" // will update getopt()
 
 #include "server.h"
 #include "eventloop.h"
