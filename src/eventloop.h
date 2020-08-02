@@ -31,12 +31,12 @@ namespace summer
 
         bool isInloopthread() { return std::this_thread::get_id() == ThreadID_ ; }
 
-        bool shutdown(std::shared_ptr<channel> channnel);
+        bool shutdown_W(std::shared_ptr<channel>);
 
         // 从epoller中更新、删除、添加channel
-        void remove(std::shared_ptr<channel> channel);
-        void update(std::shared_ptr<channel> channel);
-        void add(std::shared_ptr<channel> channel);
+        void remove(std::shared_ptr<channel> );
+        void update(std::shared_ptr<channel>, int timeout );
+        void add(std::shared_ptr<channel>,int timeout);
 
         void wakeup();
 

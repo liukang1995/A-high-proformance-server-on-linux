@@ -5,6 +5,7 @@
 
 #include "sys/eventfd.h"
 #include "assert.h"
+#include "sys/socket.h"
 #include "sys/unistd.h"
 #include "stddef.h"  // for size_t
 
@@ -30,7 +31,7 @@ eventloop::eventloop()
 
     //边缘触发
     wakeupchannel_->setEvents(EPOLLIN | EPOLLET);
-    wakeupchannel_->setreadcallback( bind(&eventloop::handleRead,this) );
+    wakeupchannel_->setreadcallback( [this] { handleRead(); } );
     
 
     /*
@@ -43,13 +44,13 @@ eventloop::eventloop()
 
     */
 
-   add(wakeupchannel_);
+   add(wakeupchannel_,0);
 }
 
 eventloop::~eventloop()
 {
     wakeupchannel_->setEvents(0);
-    update(wakeupchannel_);
+    update(wakeupchannel_,0);
     remove(wakeupchannel_);
     close(wakeupfd_);
 }
@@ -206,4 +207,24 @@ void eventloop::loop()
         */
     }
     looping_ = false;
+}
+
+void eventloop::remove(shared_ptr<channel> ch)
+{
+    epoller_->epoll_rm(ch);
+}
+
+void eventloop::add(shared_ptr<channel> ch,int timeout)
+{
+    epoller_->epoll_add(ch,timeout);
+}
+
+void eventloop::update(shared_ptr<channel> ch,int timeout)
+{
+    epoller_->epoll_mod(ch,timeout);
+}
+
+bool eventloop::shutdown_W(shared_ptr<channel> ch)
+{
+    shutdown(ch->getFd(), SHUT_WR);
 }
